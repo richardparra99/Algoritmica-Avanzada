@@ -1,2 +1,2 @@
-# Algor-tmica-Avanzada
+# Algoritmica-Avanzada
 proyectos - tareas
