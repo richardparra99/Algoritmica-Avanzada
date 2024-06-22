@@ -1,0 +1,5 @@
+1,Angelo,angelito123,angelo@gmail.com,Movil
+1,Leonardo,leo2022,leo@gmail.com,Movil
+1,Leonardo,leo2022,leo@gmail.com,Movil
+1,Richard Parra,parra2023,richard@gmail.com,PC
+1,Richard Parra,parra2023,richard@gmail.com,PC
