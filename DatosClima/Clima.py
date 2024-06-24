@@ -1,48 +1,88 @@
-import pandas as pd
-import json
+import tkinter as tk
+from tkinter import messagebox
+import requests
+import matplotlib.pyplot as plt
+from datetime import datetime
 
-# Diccionario JSON proporcionado
-data = {
-    "coord": {"lon": 10.99, "lat": 44.34},
-    "weather": [
-        {"id": 501, "main": "Rain", "description": "moderate rain", "icon": "10d"}
-    ],
-    "base": "stations",
-    "main": {
-        "temp": 298.48,
-        "feels_like": 298.74,
-        "temp_min": 297.56,
-        "temp_max": 300.05,
-        "pressure": 1015,
-        "humidity": 64,
-        "sea_level": 1015,
-        "grnd_level": 933
-    },
-    "visibility": 10000,
-    "wind": {"speed": 0.62, "deg": 349, "gust": 1.18},
-    "rain": {"1h": 3.16},
-    "clouds": {"all": 100},
-    "dt": 1661870592,
-    "sys": {
-        "type": 2,
-        "id": 2075663,
-        "country": "IT",
-        "sunrise": 1661834187,
-        "sunset": 1661882248
-    },
-    "timezone": 7200,
-    "id": 3163858,
-    "name": "Zocca",
-    "cod": 200
-}
+def get_weather():
+    city = city_entry.get()
+    api_key = "3e0a4bdc8985cb158b77c90782afcc6a"
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
 
-# Convertir el diccionario a un DataFrame
-df = pd.json_normalize(data)
+    try:
+        res = requests.get(url)
+        res.raise_for_status()
+        data = res.json()
 
-# Mostrar todas las filas y columnas del DataFrame
-pd.set_option('display.max_rows', None)
-pd.set_option('display.max_columns', None)
-print(df)
+        temp = data['main']['temp']
+        wind_speed = data['wind']['speed']
+        latitude = data['coord']['lat']
+        longitude = data['coord']['lon']
+        description = data['weather'][0]['description']
 
-# Mostrar una vista transpuesta para mejor visualización
-print(df.T)
+        result_text = (f"Temperatura: {temp} °C\n"
+                       f"Velocidad del viento: {wind_speed} m/s\n"
+                       f"Latitud: {latitude}\n"
+                       f"Longitud: {longitude}\n"
+                       f"Descripción del clima: {description}")
+
+        result_label.config(text=result_text)
+
+        get_forecast(city, api_key)
+
+    except requests.exceptions.RequestException as e:
+        messagebox.showerror("Error", f"No se pudo obtener los datos del clima: {e}")
+    except KeyError:
+        messagebox.showerror("Error", "Ciudad no encontrada, por favor ingrese una ciudad válida.")
+
+def get_forecast(city, api_key):
+    url = f"http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={api_key}&units=metric"
+
+    try:
+        res = requests.get(url)
+        res.raise_for_status()
+        data = res.json()
+
+        # Procesar datos para los próximos días
+        dates = []
+        temps = []
+        for entry in data['list']:
+            date = datetime.fromtimestamp(entry['dt'])
+            dates.append(date)
+            temps.append(entry['main']['temp'])
+
+        plot_forecast(dates, temps)
+
+    except requests.exceptions.RequestException as e:
+        messagebox.showerror("Error", f"No se pudo obtener los datos del pronóstico: {e}")
+
+def plot_forecast(dates, temps):
+    plt.figure(figsize=(10, 5))
+    plt.plot(dates, temps, marker='o', linestyle='-', color='b')
+    plt.title('Pronóstico de temperatura para los próximos días')
+    plt.xlabel('Fecha')
+    plt.ylabel('Temperatura (°C)')
+    plt.grid(True)
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+# Crear la ventana principal
+root = tk.Tk()
+root.title("Consulta del Clima")
+
+# Crear los widgets
+city_label = tk.Label(root, text="Ingrese una ciudad:")
+city_label.pack()
+
+city_entry = tk.Entry(root)
+city_entry.pack()
+
+search_button = tk.Button(root, text="Buscar", command=get_weather)
+search_button.pack()
+
+result_label = tk.Label(root, text="", justify="left")
+result_label.pack()
+
+# Iniciar el bucle principal de la interfaz
+root.mainloop()
