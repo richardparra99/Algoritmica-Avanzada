@@ -84,7 +84,7 @@ class Mi_Consola:
         self.check_mostrar_contrasena_registro = tk.Checkbutton(self.left_frame, text="Mostrar contraseña", variable=self.var_mostrar_contrasena_registro, command=self.mostrar_ocultar_contrasena_registro, bg="#ffffff", fg=self.label_fg, font=self.font)
         self.check_mostrar_contrasena_registro.pack(pady=5)
 
-        self.button_registrar_usuario = tk.Button(self.left_frame, text="Registrarse", command=self.registrar_usuario, bg=self.button_bg, fg=self.button_fg, font=self.font)
+        self.button_registrar_usuario = tk.Button(self.left_frame, text="Registrarse", command=self.registrar_usuario, bg="#800080", fg=self.button_fg, font=self.font)
         self.button_registrar_usuario.pack(pady=10)
 
         self.button_login_prompt = tk.Button(self.left_frame, text="¿Ya tienes una cuenta? Inicia sesión", command=self.crear_login, bg="#ffffff", fg=self.label_fg, font=self.font, bd=0)
@@ -129,7 +129,7 @@ class Mi_Consola:
         self.check_mostrar_contrasena_login = tk.Checkbutton(self.right_frame, text="Mostrar contraseña", variable=self.var_mostrar_contrasena_login, command=self.mostrar_ocultar_contrasena_login, bg="#ffffff", fg=self.label_fg, font=self.font)
         self.check_mostrar_contrasena_login.pack(pady=5)
 
-        self.button_iniciar_sesion = tk.Button(self.right_frame, text="SIGN IN", command=self.iniciar_sesion, bg=self.button_bg, fg=self.button_fg, font=self.font)
+        self.button_iniciar_sesion = tk.Button(self.right_frame, text="SIGN IN", command=self.iniciar_sesion, bg="#800080", fg=self.button_fg, font=self.font)
         self.button_iniciar_sesion.pack(pady=20)
 
         self.button_register_prompt = tk.Button(self.right_frame, text="¿No tienes una cuenta? Regístrate", command=self.crear_registro, bg="#ffffff", fg=self.label_fg, font=self.font, bd=0)
@@ -249,6 +249,7 @@ class Mi_Consola:
                     self.id_dispositivo_actual = next_id
 
                 self.mostrar_panel_canciones()
+                self.redimensionar_imagen_fondo()
             else:
                 messagebox.showerror("Error", "Correo o contraseña incorrectos")
         except Exception as e:
@@ -310,74 +311,93 @@ class Mi_Consola:
             cursor.close()
             conn.close() 
 
-
+    def redimensionar_imagen_fondo(self):
+        if self.image_label:
+            # Redimensionar la imagen
+            self.image = Image.open("C:/Users/Richard-P/Algoritmica-Avanzada/Imagenes/YoutuneII.png")
+            self.image = self.image.resize((self.frame_canciones.winfo_width(), self.frame_canciones.winfo_height()), Image.Resampling.LANCZOS)
+            self.bg_image = ImageTk.PhotoImage(self.image)
+            self.image_label.config(image=self.bg_image)
+            
     def mostrar_panel_canciones(self):
-     self.limpiar_frames()
+        self.limpiar_frames()
 
-     self.frame_canciones = tk.Frame(self.main_frame, bg="#ffffff")
-     self.frame_canciones.pack(expand=True, fill="both")
+        self.frame_canciones = tk.Frame(self.main_frame, bg="#ffffff")
+        self.frame_canciones.pack(expand=True, fill="both")
+        
+        # Cargar imagen de fondo
+        self.image = Image.open("C:/Users/Richard-P/Algoritmica-Avanzada/Imagenes/YoutuneII.png")
+        self.image = self.image.resize((self.frame_canciones.winfo_width(), self.frame_canciones.winfo_height()), Image.Resampling.LANCZOS)
+        self.bg_image = ImageTk.PhotoImage(self.image)
+        
+        # Colocar la imagen de fondo en un label
+        self.image_label = tk.Label(self.frame_canciones, image=self.bg_image)
+        self.image_label.place(relwidth=1, relheight=1)
+        
+        # Menú
+        self.menu_bar = Menu(self.root)
+        self.root.config(menu=self.menu_bar)
 
-    # Menú
-     self.menu_bar = Menu(self.root)
-     self.root.config(menu=self.menu_bar)
+        self.menu_perfil = Menu(self.menu_bar, tearoff=0)
+        self.menu_bar.add_cascade(label="Perfil", menu=self.menu_perfil)
+        self.menu_perfil.add_command(label="Mostrar Perfil", command=self.mostrar_perfil)
+        self.menu_perfil.add_command(label="Cambiar Nombre", command=self.cambiar_nombre)
+        self.menu_perfil.add_command(label="Cambiar Contraseña", command=self.cambiar_contrasena)
+        self.menu_perfil.add_separator()
+        self.menu_perfil.add_command(label="Cerrar Sesión", command=self.cerrar_sesion)
 
-     self.menu_perfil = Menu(self.menu_bar, tearoff=0)
-     self.menu_bar.add_cascade(label="Perfil", menu=self.menu_perfil)
-     self.menu_perfil.add_command(label="Mostrar Perfil", command=self.mostrar_perfil)
-     self.menu_perfil.add_command(label="Cambiar Nombre", command=self.cambiar_nombre)
-     self.menu_perfil.add_command(label="Cambiar Contraseña", command=self.cambiar_contrasena)
-     self.menu_perfil.add_separator()
-     self.menu_perfil.add_command(label="Cerrar Sesión", command=self.cerrar_sesion)
+        # Resto de las opciones del menú...
+        self.menu_playlist = Menu(self.menu_bar, tearoff=0)
+        self.menu_bar.add_cascade(label="Playlist", menu=self.menu_playlist)
+        self.menu_playlist.add_command(label="Mostrar Playlists", command=self.mostrar_playlists)
+        self.menu_playlist.add_command(label="Crear Playlist", command=self.crear_nueva_playlist)
 
-    # Resto de las opciones del menú...
-     self.menu_playlist = Menu(self.menu_bar, tearoff=0)
-     self.menu_bar.add_cascade(label="Playlist", menu=self.menu_playlist)
-     self.menu_playlist.add_command(label="Mostrar Playlists", command=self.mostrar_playlists)
-     self.menu_playlist.add_command(label="Crear Playlist", command=self.crear_nueva_playlist)
+        self.menu_musica = Menu(self.menu_bar, tearoff=0)
+        self.menu_bar.add_cascade(label="Música", menu=self.menu_musica)
+        self.menu_musica.add_command(label="Buscar Canciones", command=self.buscar_canciones)
 
-     self.menu_musica = Menu(self.menu_bar, tearoff=0)
-     self.menu_bar.add_cascade(label="Música", menu=self.menu_musica)
-     self.menu_musica.add_command(label="Buscar Canciones", command=self.buscar_canciones)
+        self.menu_artistas = Menu(self.menu_bar, tearoff=0)
+        self.menu_bar.add_command(label="Artistas", command=self.mostrar_artistas)
 
-     self.menu_artistas = Menu(self.menu_bar, tearoff=0)
-     self.menu_bar.add_command(label="Artistas", command=self.mostrar_artistas)
+        self.menu_albumes = Menu(self.menu_bar, tearoff=0)
+        self.menu_bar.add_command(label="Álbumes", command=self.mostrar_albumes)
 
-     self.menu_albumes = Menu(self.menu_bar, tearoff=0)
-     self.menu_bar.add_command(label="Álbumes", command=self.mostrar_albumes)
+        self.menu_genero = Menu(self.menu_bar, tearoff=0)
+        self.menu_bar.add_command(label="Género", command=self.mostrar_genero)
 
-     self.menu_genero = Menu(self.menu_bar, tearoff=0)
-     self.menu_bar.add_command(label="Género", command=self.mostrar_genero)
-
-     self.menu_historial = Menu(self.menu_bar, tearoff=0)
-     self.menu_bar.add_command(label="Historial", command=self.mostrar_historial)
-
-     self.crear_reproductor()
+        self.menu_historial = Menu(self.menu_bar, tearoff=0)
+        self.menu_bar.add_command(label="Historial", command=self.mostrar_historial)
+        
+        self.frame_canciones.bind("<Configure>", lambda e: self.redimensionar_imagen_fondo())
+        
+        self.crear_reproductor()
+        
 
 
     def crear_reproductor(self):
-     self.frame_reproductor = tk.Frame(self.root, bg="#2c3e50")
+     self.frame_reproductor = tk.Frame(self.root, bg="#800080")
      self.frame_reproductor.pack(side="bottom", fill="x")
 
-     self.button_previous = tk.Button(self.frame_reproductor, text="<<", command=self.anterior_musica, bg=self.button_bg, fg=self.button_fg, font=self.font)
+     self.button_previous = tk.Button(self.frame_reproductor, text="<<", command=self.anterior_musica,  bg="#ffffff", fg="#000000", font=self.font)
      self.button_previous.pack(side="left", padx=5, pady=5)
 
-     self.button_play_pause = tk.Button(self.frame_reproductor, text="Play", command=self.play_pause_musica, bg=self.button_bg, fg=self.button_fg, font=self.font)
+     self.button_play_pause = tk.Button(self.frame_reproductor, text="Play", command=self.play_pause_musica, bg="#ffffff", fg="#000000", font=self.font)
      self.button_play_pause.pack(side="left", padx=5, pady=5)
 
-     self.button_next = tk.Button(self.frame_reproductor, text=">>", command=self.siguiente_musica, bg=self.button_bg, fg=self.button_fg, font=self.font)
+     self.button_next = tk.Button(self.frame_reproductor, text=">>", command=self.siguiente_musica, bg="#ffffff", fg="#000000", font=self.font)
      self.button_next.pack(side="left", padx=5, pady=5)
 
-     self.scale = Scale(self.frame_reproductor, from_=0, to=100, orient=HORIZONTAL, length=400, bg="#2c3e50", fg=self.button_fg, font=self.font, showvalue=0)
+     self.scale = Scale(self.frame_reproductor, from_=0, to=100, orient=HORIZONTAL, length=400, bg="#800080", fg=self.button_fg, font=self.font, showvalue=0)
      self.scale.pack(side="left", fill="x", expand=True, padx=5)
      self.scale.bind("<ButtonPress-1>", self.empezar_arrastrar_slider)
      self.scale.bind("<ButtonRelease-1>", self.soltar_slider)
      self.scale.bind("<B1-Motion>", self.actualizar_tiempo_slider)
 
-     self.label_tiempo = tk.Label(self.frame_reproductor, text="00:00 / 00:00", bg="#2c3e50", fg=self.button_fg, font=self.font)
+     self.label_tiempo = tk.Label(self.frame_reproductor, text="00:00 / 00:00", bg="#800080", fg=self.button_fg, font=self.font)
      self.label_tiempo.pack(side="left", padx=5, pady=5)
 
     # Añadir escala de volumen
-     self.volumen = Scale(self.frame_reproductor, from_=0, to=1, resolution=0.01, orient=HORIZONTAL, length=100, bg="#2c3e50", fg=self.button_fg, font=self.font)
+     self.volumen = Scale(self.frame_reproductor, from_=0, to=1, resolution=0.01, orient=HORIZONTAL, length=100, bg="#800080", fg=self.button_fg, font=self.font)
      self.volumen.set(0.5)  # Valor inicial del volumen (50%)
      self.volumen.pack(side="right", padx=5, pady=5)
      self.volumen.bind("<Motion>", self.ajustar_volumen)
@@ -439,13 +459,13 @@ class Mi_Consola:
 
     def mostrar_perfil(self):
         self.limpiar_frames()
-
+        
         self.label_nombre = tk.Label(self.main_frame, text=f"Nombre: {self.nombre_usuario}", font=self.font, bg="#f0f0f0")
         self.label_nombre.pack(pady=10)
 
         self.label_correo = tk.Label(self.main_frame, text=f"Correo: {self.correo_usuario}", font=self.font, bg="#f0f0f0")
         self.label_correo.pack(pady=10)
-
+        
     def cerrar_sesion(self):
      self.nombre_usuario = None
      self.correo_usuario = None
